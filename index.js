@@ -4,16 +4,27 @@ const mongoose=require('mongoose');
 const path=require('path');
 const Data=require('./models/dat');
 const methodOverride=require('method-override');
+const dotenv=require('dotenv');
 
+dotenv.config()
 
+const connectDb=async()=>{
+    try {
+       
+        const conn = await mongoose.connect(process.env.MONGO_URI, {
+          useUnifiedTopology: true,
+          useNewUrlParser: true
+        })
+   
+        console.log(`MongoDB Connected: ${conn.connection.host}`)
+      } catch (error) {
+        console.error(`Error: ${error.message}`)
+        process.exit(1)
+      }
+}
 
-mongoose.connect('mongodb://localhost:27017/reception-db')
-.then(()=>{
-    console.log("DB CONNECTED")
-})
-.catch((er)=>{
-    console.log(err)
-})
+connectDb()
+
 app.set('view engine','ejs');
 app.set('views',path.join(__dirname,'/views'));
 app.use(express.urlencoded({extended:true}));
@@ -58,7 +69,7 @@ app.delete('/home/:id',async (req,res)=>{
 
 function sendemail(email,cinh,cinm){
     const sgMail=require('@sendgrid/mail');
-   const  sendgrid='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';
+   const  sendgrid=process.env.SG_KEY;
   sgMail.setApiKey(sendgrid);
   let m=cinm.toString();
   let h=cinh.toString();;
@@ -70,7 +81,7 @@ function sendemail(email,cinh,cinm){
   }
   const msg={
       to: email,
-      from: "harshdeepdhiman.cse19@chitkarauniversity.edu.in",
+      from: process.env.MAIL,
       subject:"Entering building",
       text:`Hi you entered the building at ${h}:${m}`
   };
@@ -80,7 +91,7 @@ function sendemail(email,cinh,cinm){
 
 function sendexmail(email,couth,coutm){
     const sgMail=require('@sendgrid/mail');
-   const  sendgrid='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';
+   const  sendgrid=process.env.SG_KEY;
   sgMail.setApiKey(sendgrid);
   let m=coutm.toString();
   let h=couth.toString();
@@ -92,7 +103,7 @@ function sendexmail(email,couth,coutm){
   }
   const msg={
       to: email,
-      from: "harshdeepdhiman.cse19@chitkarauniversity.edu.in",
+      from: process.env.MAIL,
       subject:"Checking out",
       text:`Hi you checked out at ${h}:${m}`
   };
